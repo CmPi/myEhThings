@@ -61,7 +61,7 @@ void MAX30205Component::update() {
   
   this->status_clear_warning();
   
-  if (!isnan(current_temperature)) {
+  if (!std::isnan(current_temperature)) {
     ESP_LOGD(TAG, "Temperature: %.2f°C", current_temperature);
     this->publish_state(current_temperature);
     this->last_temperature_ = current_temperature;
