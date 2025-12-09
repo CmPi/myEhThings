@@ -9,9 +9,11 @@ from esphome.const import (
 
 CONF_ADDRESS = "address"
 
+# Déclare le namespace et la classe C++
 max30205_ns = cg.esphome_ns.namespace("max30205")
-MAX30205Component = max30205_ns.class_("MAX30205Component", cg.PollingComponent)
+MAX30205Component = max30205_ns.class_("MAX30205Component", cg.PollingComponent, sensor.Sensor)
 
+# Définition du schéma YAML
 CONFIG_SCHEMA = sensor.sensor_schema(
     MAX30205Component,
     unit_of_measurement=UNIT_CELSIUS,
@@ -24,9 +26,9 @@ CONFIG_SCHEMA = sensor.sensor_schema(
     }
 ).extend(cv.polling_component_schema("10s"))
 
+# Fonction de génération du code
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)
-    sens = await sensor.new_sensor(config)
-    cg.add(var.set_sensor(sens))
+    await sensor.register_sensor(var, config)
     cg.add(var.set_address(config[CONF_ADDRESS]))
