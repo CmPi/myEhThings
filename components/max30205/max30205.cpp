@@ -1,49 +1,87 @@
+/*
+ * @file max30205.cpp
+ *
+ */ 
+
 #include "max30205.h"
+#include "esphome/core/log.h"
 
 namespace esphome {
 namespace max30205 {
 
-#define MAX30205_CONFIGURATION 0x01
-#define MAX30205_TEMPERATURE_REGISTER 0x00
+static const char *const TAG = "max30205";
+
+static const uint8_t MAX30205_CONFIGURATION = 0x01;
+static const uint8_t MAX30205_TEMPERATURE_REGISTER = 0x00;
 
 void MAX30205Component::setup() {
-  begin();
+  ESP_LOGCONFIG(TAG, "Setting up MAX30205...");
+  
+  if (!this->write_register_(MAX30205_CONFIGURATION, 0x00)) {
+    ESP_LOGE(TAG, "Failed to configure MAX30205");
+    this->mark_failed();
+    return;
+  }
+  
+  ESP_LOGCONFIG(TAG, "MAX30205 setup complete");
 }
 
-void MAX30205Component::begin() {
-  I2CwriteByte(MAX30205_CONFIGURATION, 0x00);
+void MAX30205Component::dump_config() {
+  ESP_LOGCONFIG(TAG, "MAX30205:");
+  LOG_I2C_DEVICE(this);
+  LOG_UPDATE_INTERVAL(this);
+  LOG_SENSOR("  ", "Temperature", this);
+  
+  if (this->is_failed()) {
+    ESP_LOGE(TAG, "Communication with MAX30205 failed!");
+  }
 }
 
-float MAX30205Component::getTemperature() {
+bool MAX30205Component::read_temperature_(float &temperature) {
   uint8_t buffer[2];
-  I2CreadBytes(MAX30205_TEMPERATURE_REGISTER, buffer, 2);
+  
+  if (!this->read_register_(MAX30205_TEMPERATURE_REGISTER, buffer, 2)) {
+    return false;
+  }
+  
   int16_t raw = (buffer[0] << 8) | buffer[1];
-  return raw * 0.00390625;  // 0.00390625 °C/LSB
+  temperature = raw * 0.00390625f;  // 0.00390625 °C/LSB
+  
+  return true;
 }
 
 void MAX30205Component::update() {
-  float fCurrentTemperature = getTemperature();
-  if (!isnan(fCurrentTemperature) && fCurrentTemperature != fLastTemperature) {
-    publish_state(fCurrentTemperature);
-    fLastTemperature = fCurrentTemperature;
+  float current_temperature;
+  
+  if (!this->read_temperature_(current_temperature)) {
+    ESP_LOGW(TAG, "Failed to read temperature");
+    this->status_set_warning();
+    return;
+  }
+  
+  this->status_clear_warning();
+  
+  if (!isnan(current_temperature)) {
+    ESP_LOGD(TAG, "Temperature: %.2f°C", current_temperature);
+    this->publish_state(current_temperature);
+    this->last_temperature_ = current_temperature;
   }
 }
 
-void MAX30205Component::I2CwriteByte(uint8_t reg, uint8_t data) {
-  Wire.beginTransmission(this->address_);
-  Wire.write(reg);
-  Wire.write(data);
-  Wire.endTransmission();
+bool MAX30205Component::write_register_(uint8_t reg, uint8_t data) {
+  if (!this->write_byte(reg, data)) {
+    ESP_LOGW(TAG, "Failed to write register 0x%02X", reg);
+    return false;
+  }
+  return true;
 }
 
-void MAX30205Component::I2CreadBytes(uint8_t reg, uint8_t *buffer, uint8_t length) {
-  Wire.beginTransmission(this->address_);
-  Wire.write(reg);
-  Wire.endTransmission();
-  Wire.requestFrom(this->address_, length);
-  for (uint8_t i = 0; i < length; i++) {
-    if (Wire.available()) buffer[i] = Wire.read();
+bool MAX30205Component::read_register_(uint8_t reg, uint8_t *buffer, uint8_t length) {
+  if (!this->read_bytes(reg, buffer, length)) {
+    ESP_LOGW(TAG, "Failed to read register 0x%02X", reg);
+    return false;
   }
+  return true;
 }
 
 }  // namespace max30205

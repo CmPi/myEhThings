@@ -1,6 +1,6 @@
 {
-  "domain": "max30205",
   "name": "MAX30205",
+  "description": "Component for MAX30205 I2C temperature sensor",
   "version": "1.0.0",
   "documentation": "https://github.com/CmPi/myEhThings/tree/main/components/max30205",
   "dependencies": ["i2c","sensor"],
