@@ -1,6 +1,8 @@
 #pragma once
 
 #include "esphome.h"
+#include "esphome/components/i2c/i2c.h"
+#include "esphome/components/sensor/sensor.h"
 
 // Adresse I2C par défaut
 #define MAX30205_ADDRESS        0x48
@@ -11,7 +13,7 @@
 #define MAX30205_THYST          0x02
 #define MAX30205_TOS            0x03
 
-class MAX30205Component : public PollingComponent, public sensor::Sensor, public i2c::I2CDevice {
+class MAX30205Component : public PollingComponent, public esphome::sensor::Sensor, public i2c::I2CDevice {
 public:
     float fLastTemperature = 0;
     uint8_t sensorAddress = MAX30205_ADDRESS;
