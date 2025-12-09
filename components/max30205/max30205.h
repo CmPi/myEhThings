@@ -31,7 +31,7 @@ typedef enum{   	//For configuration registers
 static const char *const TAG_MAX30205 = "max30205.sensor";
 static const char *const TAG = "max30205.sensor";
 
-class myMax30205 : public sensor::Sensor, public PollingComponent, public i2c::I2CDevice
+class MAX30205Component : public sensor::Sensor, public PollingComponent, public i2c::I2CDevice
 {
 
 public:
@@ -41,7 +41,7 @@ public:
 
 public:
   // constructor
-  myMax30205() : PollingComponent(60000)
+  MAX30205Component() : PollingComponent(60000)
   {
   }
 
