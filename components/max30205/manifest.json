@@ -3,7 +3,7 @@
   "name": "MAX30205",
   "version": "1.0.0",
   "documentation": "https://github.com/CmPi/myEhThings/tree/main/components/max30205",
-  "dependencies": ["i2c"],
+  "dependencies": ["i2c","sensor"],
   "codeowners": ["@CmPi"],
   "requirements": []
 }
