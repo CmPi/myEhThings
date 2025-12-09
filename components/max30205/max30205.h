@@ -48,6 +48,10 @@ public:
   // ========== INTERNAL METHODS ==========
   // (In most use cases you won't need these)
 
+  void set_address(uint8_t address) { 
+  //  address_ = address; 
+  }
+
   void setup() override
   {
     begin();
