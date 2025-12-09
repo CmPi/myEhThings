@@ -1,5 +1,7 @@
 #
 # @file sensor.py
+# @author CmPi <cmpi@webe.fr>
+#
 
 import esphome.codegen as cg
 import esphome.config_validation as cv

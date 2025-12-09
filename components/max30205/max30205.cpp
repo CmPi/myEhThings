@@ -1,5 +1,6 @@
 /*
  * @file max30205.cpp
+ * @author CmPi <cmpi@webe.fr>
  *
  */ 
 
