@@ -1,0 +1,9 @@
+{
+  "name": "lacrosse_tx3",
+  "description": "Component for Lacrosse TX3 weather sensors",
+  "version": "1.0.0",
+  "documentation": "https://github.com/CmPi/myEhThings/tree/main/components/lacrosse_tx3",
+  "dependencies": ["sensor"],
+  "codeowners": ["@CmPi"],
+  "requirements": []
+}
