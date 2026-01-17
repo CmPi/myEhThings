@@ -223,10 +223,14 @@ async def build_binary_sensor(full_config):
 
 
 async def build_triggers(full_config):
+    triggers = []
     for key in TRIGGER_REGISTRY:
         for config in full_config.get(key, []):
             func = TRIGGER_REGISTRY[key][0]
-            await func(config)
+            trigger = await func(config)
+            if trigger is not None:
+                triggers.append(trigger)
+    return triggers
 
 
 async def build_dumpers(config):
