@@ -1394,10 +1394,8 @@ LacrosseData, LacrosseBinarySensor, LacrosseTrigger, LacrosseAction, LacrosseDum
 
 LACROSSE_SCHEMA = cv.Schema(
     {
-        cv.Optional(CONF_ADDRESS, default=0): cv.int_range(min=0, max=127),
-        cv.Optional(CONF_COMMAND, default=0): cv.int_range(min=0, max=15),   
-        cv.Optional("type", default=0): cv.one_of(0, 15, 20, int=True),
-#       cv.Required(CONF_ADDRESS): cv.hex_uint16_t,
+        cv.Optional(CONF_ADDRESS, default=0): cv.int_range(min=0, max=255),
+        cv.Optional("type", default=0): cv.int_range(min=0, max=255),
     }
 )
 
@@ -1408,20 +1406,20 @@ def lacrosse_binary_sensor(var, config):
             cg.StructInitializer(
                 LacrosseData,
                 ("address", config[CONF_ADDRESS]),
+                ("type", config["type"]),
             )
         )
     )
 
 @register_trigger("lacrosse", LacrosseTrigger, LacrosseData)
-def pronto_trigger(var, config):
+def lacrosse_trigger(var, config):
     pass
 
 @register_dumper("lacrosse", LacrosseDumper)
 def lacrosse_dumper(var, config):
     pass
 
-@register_action("lacrosse", LacrosseAction, LACROSSE_SCHEMA)
-async def lacrosse_action(var, config, args):
-    template_ = await cg.templatable(config[CONF_ADDRESS], args, cg.uint16)
-    cg.add(var.set_address(template_))
-    cg.add(var.set_data(config[CONF_DATA]))
+# Note: Lacrosse protocol is receive-only, encode() not implemented in C++
+# @register_action("lacrosse", LacrosseAction, LACROSSE_SCHEMA)
+# async def lacrosse_action(var, config, args):
+#     pass
