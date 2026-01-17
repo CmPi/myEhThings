@@ -8,9 +8,9 @@
 #include "esphome/components/binary_sensor/binary_sensor.h"
 
 #ifdef USE_ESP32
-// Use new RMT driver API
-#include <driver/rmt_tx.h>
-#include <driver/rmt_rx.h>
+// Use legacy RMT driver to avoid conflicts with new API
+#include <driver/rmt_types_legacy.h>
+#include <driver/rmt.h>
 #endif
 
 namespace esphome {
@@ -169,22 +169,22 @@ class RemoteRMTChannel {
  public:
   explicit RemoteRMTChannel(uint8_t mem_block_num = 1);
 
-  void set_clock_resolution(uint32_t resolution_hz) { this->resolution_hz_ = resolution_hz; }
-  uint32_t get_clock_resolution() const { return this->resolution_hz_; }
-  void set_mem_block_symbols(size_t symbols) { this->mem_block_symbols_ = symbols; }
-  size_t get_mem_block_symbols() const { return this->mem_block_symbols_; }
+  void config_rmt(rmt_config_t &rmt);
+  void set_clock_divider(uint8_t clock_divider) { this->clock_divider_ = clock_divider; }
 
  protected:
   uint32_t from_microseconds_(uint32_t us) {
-    return (uint64_t)us * this->resolution_hz_ / 1000000U;
+    const uint32_t ticks_per_ten_us = 80000000u / this->clock_divider_ / 100000u;
+    return us * ticks_per_ten_us / 10;
   }
   uint32_t to_microseconds_(uint32_t ticks) {
-    return (uint64_t)ticks * 1000000U / this->resolution_hz_;
+    const uint32_t ticks_per_ten_us = 80000000u / this->clock_divider_ / 100000u;
+    return (ticks * 10) / ticks_per_ten_us;
   }
   RemoteComponentBase *remote_base_;
-  uint32_t resolution_hz_{1000000};  // 1MHz default
-  size_t mem_block_symbols_{64};  // Default memory block size
+  rmt_channel_t channel_{RMT_CHANNEL_0};
   uint8_t mem_block_num_;
+  uint8_t clock_divider_{80};
 };
 #endif
 
